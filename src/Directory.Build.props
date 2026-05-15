@@ -1,0 +1,4 @@
+<Project>
+	<Import Project="$(MSBuildThisFileDirectory)\Directory.Build.analyzers.props" Condition="Exists('$(MSBuildThisFileDirectory)\Directory.Build.analyzers.props')" />
+	<!--<Import Project="$(MSBuildThisFileDirectory)\Directory.Build.fody.props" Condition="Exists('$(MSBuildThisFileDirectory)\Directory.Build.fody.props')" />-->
+</Project>

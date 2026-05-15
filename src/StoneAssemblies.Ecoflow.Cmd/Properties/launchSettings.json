@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StoneAssemblies.Ecoflow.Cmd": {
+      "commandName": "Project",
+      "commandLineArgs": "battery info -d \"DELTA 2 Max-1029\" -a alexfdezsauco"
+    }
+  }
+}
