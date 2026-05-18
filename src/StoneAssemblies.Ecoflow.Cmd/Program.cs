@@ -36,7 +36,7 @@ var app = new CommandApp(registrar);
 
 app.Configure(config =>
 {
-    config.SetApplicationName("ecoflow");
+    config.SetApplicationName("gwen");
     config.ValidateExamples();
 
     config.SetExceptionHandler((ex, resolver) =>

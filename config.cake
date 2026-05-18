@@ -17,7 +17,7 @@ var ExecProjects  = new []
 
 var ExecProjectsOutputDirectories  = new [] 
 {
-    "output/release/ecoflow/{0}/{1}"
+    "output/release/gwen/{0}/{1}"
 };
 
 var RuntimeIdentifiers  = new string [] 

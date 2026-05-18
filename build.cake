@@ -186,7 +186,7 @@ Task("Publish")
               });              
 
               var nonSelfContainedFiles = GetFiles(string.Format(outputDirectoy, runtimeIdentifier, "non-self-contained") + "/**/*");
-              Zip(string.Format(outputDirectoy, runtimeIdentifier, "non-self-contained"), $"output/zip/ecoflow-cli-{runtimeIdentifier}-non-self-contained-{NuGetVersionV2}.zip", nonSelfContainedFiles.Where(f => !f.FullPath.EndsWith(".pdb")));
+              Zip(string.Format(outputDirectoy, runtimeIdentifier, "non-self-contained"), $"output/zip/gwen-cli-{runtimeIdentifier}-non-self-contained-{NuGetVersionV2}.zip", nonSelfContainedFiles.Where(f => !f.FullPath.EndsWith(".pdb")));
 
               Information($"Publishing self-container executable for {projectFile} for runtime {runtimeIdentifier} ...");
               DotNetPublish(projectFile, new DotNetPublishSettings()
@@ -199,7 +199,7 @@ Task("Publish")
               });
 
               var selfContainedFiles = GetFiles(string.Format(outputDirectoy, runtimeIdentifier, "self-contained") + "/**/*");
-              Zip(string.Format(outputDirectoy, runtimeIdentifier, "self-contained"), $"output/zip/ecoflow-cli-{runtimeIdentifier}-self-contained-{NuGetVersionV2}.zip", selfContainedFiles.Where(f => !f.FullPath.EndsWith(".pdb")));
+              Zip(string.Format(outputDirectoy, runtimeIdentifier, "self-contained"), $"output/zip/gwen-cli-{runtimeIdentifier}-self-contained-{NuGetVersionV2}.zip", selfContainedFiles.Where(f => !f.FullPath.EndsWith(".pdb")));
           }
       }
   });   
