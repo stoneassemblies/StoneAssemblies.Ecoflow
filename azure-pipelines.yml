@@ -48,3 +48,20 @@ steps:
   displayName: 'NuGet Push'
   env:
     NUGET_API_KEY: $(NUGET_API_KEY)
+
+- script: dotnet cake --target=Publish
+  displayName: 'Publish'
+
+- task: GitHubRelease@1
+  inputs:
+    gitHubConnection: 'stoneassemblies'
+    repositoryName: 'stoneassemblies/StoneAssemblies.Ecoflow'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'gitTag'
+    tagPattern: '.*'
+    title: 'Ecoflow $(GitVersion.NuGetVersion)'
+    assets: '$(Build.SourcesDirectory)/output/zip/*.zip'
+    isPreRelease: true
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
