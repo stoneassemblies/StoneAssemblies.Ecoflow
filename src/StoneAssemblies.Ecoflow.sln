@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoneAssemblies.Ecoflow.Cmd", "StoneAssemblies.Ecoflow.Cmd\StoneAssemblies.Ecoflow.Cmd.csproj", "{F6D52DA4-A2C6-4DFC-BAD4-391B578CFF3B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{50381D5C-0EC5-4609-B1FA-7F33148A1E90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoneAssemblies.Ecoflow.Tests", "StoneAssemblies.Ecoflow.Tests\StoneAssemblies.Ecoflow.Tests.csproj", "{2DE417F9-F18C-4FCD-9939-8115EEF4677F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +27,10 @@ Global
 		{F6D52DA4-A2C6-4DFC-BAD4-391B578CFF3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6D52DA4-A2C6-4DFC-BAD4-391B578CFF3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6D52DA4-A2C6-4DFC-BAD4-391B578CFF3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DE417F9-F18C-4FCD-9939-8115EEF4677F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DE417F9-F18C-4FCD-9939-8115EEF4677F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DE417F9-F18C-4FCD-9939-8115EEF4677F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DE417F9-F18C-4FCD-9939-8115EEF4677F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,6 +38,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{38BAE91C-056A-4598-9A53-9226AA5E2851} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{F6D52DA4-A2C6-4DFC-BAD4-391B578CFF3B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{2DE417F9-F18C-4FCD-9939-8115EEF4677F} = {50381D5C-0EC5-4609-B1FA-7F33148A1E90}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3A0B63BF-F78D-4F1E-BC8E-3DFD82479A77}
