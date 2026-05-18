@@ -61,31 +61,21 @@ string GetTestResultFilePath()
 }
 
 Task("UpdateVersion")
-  .Does(() => 
+  .Does(() =>
   {
-      StartProcess("dotnet", new ProcessSettings
-      {
-          Arguments = new ProcessArgumentBuilder()
-            .Append("gitversion")
-            .Append("/output")
-            .Append("buildserver")
-            .Append("/nofetch")
-            .Append("/updateassemblyinfo")
-      });
+    var settings = new GitVersionSettings
+    {
+      NoFetch = true,
+      UpdateAssemblyInfo = false,
+      ToolPath = Context.Tools.Resolve("dotnet-gitversion") ?? Context.Tools.Resolve("dotnet-gitversion.exe")
+    };
 
-      IEnumerable<string> redirectedStandardOutput;
-      StartProcess("dotnet", new ProcessSettings
-      {
-          Arguments = new ProcessArgumentBuilder()
-            .Append("gitversion")
-            .Append("/output")
-            .Append("json")
-            .Append("/nofetch"),
-          RedirectStandardOutput = true
-      }, out redirectedStandardOutput);
+    var result = GitVersion(settings);
+    NuGetVersionV2 = result.NuGetVersionV2;
 
-      NuGetVersionV2 = redirectedStandardOutput.FirstOrDefault(s => s.Contains("NuGetVersionV2")).Split(':')[1].Trim(',', ' ', '"');
-});
+    settings.OutputType = GitVersionOutput.BuildServer;
+    GitVersion(settings);
+  });
 
 Task("Restore")
   .Does(() => 
