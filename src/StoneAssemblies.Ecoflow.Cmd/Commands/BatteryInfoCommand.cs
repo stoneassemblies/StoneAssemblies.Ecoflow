@@ -115,11 +115,11 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                 }
             }
 
-            this.ansiConsole.MarkupLine("[bold green]✔ Metrics extraction completed successfully[/]");
+            this.ansiConsole.MarkupLine("[bold green]Metrics extraction completed successfully[/]");
         }
         catch (Exception ex)
         {
-            this.ansiConsole.MarkupLine("[bold red]✖ Error while extracting metrics[/]");
+            this.ansiConsole.MarkupLine("[bold red]Error while extracting metrics[/]");
             this.ansiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
         }
 
