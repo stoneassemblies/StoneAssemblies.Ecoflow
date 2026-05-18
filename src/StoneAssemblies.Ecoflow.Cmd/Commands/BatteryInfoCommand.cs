@@ -54,7 +54,6 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
         {
             this.ansiConsole.MarkupLine($"[bold yellow]Fetching battery metrics for device:[/] [cyan]{settings.DeviceName}[/] (Account: [green]{settings.Account ?? "default"}[/])");
 
-
             var quote = await this.deviceManager.GetDeviceQuoteAsync(settings.DeviceName, settings.Account);
             using var doc = JsonDocument.Parse(quote!);
 

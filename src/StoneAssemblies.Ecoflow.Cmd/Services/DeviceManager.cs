@@ -9,11 +9,10 @@ namespace StoneAssemblies.Ecoflow.Cmd.Services;
 using System.Net.NetworkInformation;
 using System.Text.Json;
 
-using StoneAssemblies.Ecoflow.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 
 using StoneAssemblies.Ecoflow.Cmd.Services.Interfaces;
-
-using Microsoft.Extensions.Logging;
+using StoneAssemblies.Ecoflow.Services.Interfaces;
 
 public class DeviceManager : IDeviceManager
 {
