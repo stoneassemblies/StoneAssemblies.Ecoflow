@@ -17,6 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\StoneAssemblies.Ecoflow.Cmd\StoneAssemblies.Ecoflow.Cmd.csproj" />
+    <ProjectReference Include="..\StoneAssemblies.Ecoflow\StoneAssemblies.Ecoflow.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
