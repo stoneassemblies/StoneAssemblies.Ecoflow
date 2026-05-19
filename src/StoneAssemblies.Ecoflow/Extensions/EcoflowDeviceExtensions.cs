@@ -17,7 +17,7 @@ public static class EcoflowDeviceExtensions
             return;
         }
 
-        device.ProductName = EcoflowModels.WellKnownModels
+        device.ProductName = EcoflowModels.WellKnownModels.OrderByDescending(model => model.Length)
             .FirstOrDefault(model => device.DeviceName.StartsWith(model, StringComparison.OrdinalIgnoreCase)) ?? EcoflowModels.Unknown;
     }
 }

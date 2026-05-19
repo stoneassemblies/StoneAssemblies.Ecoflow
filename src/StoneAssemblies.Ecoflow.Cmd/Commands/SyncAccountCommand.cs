@@ -70,7 +70,7 @@ public class SyncAccountCommand : AsyncCommand<SyncAccountCommand.Settings>
     {
         this.ansiConsole.MarkupLine("[yellow]Synchronizing EcoFlow account...[/]");
 
-        var table = new Table()
+        var table = new Table().Border(TableBorder.Rounded)
             .AddColumn("Field")
             .AddColumn("Value")
             .AddRow("Access Key", settings.AccessKey)
@@ -79,6 +79,7 @@ public class SyncAccountCommand : AsyncCommand<SyncAccountCommand.Settings>
         this.ansiConsole.Write(table);
 
         var deviceTable = new Table()
+            .Border(TableBorder.Rounded)
             .AddColumn("DeviceName")
             .AddColumn("ProductName")
             .AddColumn("SerialNumber");

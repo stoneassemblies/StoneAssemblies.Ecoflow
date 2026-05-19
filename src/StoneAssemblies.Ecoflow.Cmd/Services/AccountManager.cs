@@ -38,44 +38,6 @@ public class AccountManager : IAccountManager
         }
     }
 
-    public string GetDeviceFile(string alias)
-    {
-        return Path.Combine(this.devicesFolder, $"{alias}.json");
-    }
-
-    public void Save(EcoFlowDevice device)
-    {
-        var file = this.GetDeviceFile(device.DeviceName);
-
-        if (File.Exists(file))
-        {
-            throw new Exception($"A device with alias '{device.DeviceName}' already exists");
-        }
-
-        var json = JsonSerializer.Serialize(device, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(file, json);
-    }
-
-    public EcoFlowDevice? Load(string alias)
-    {
-        var file = this.GetDeviceFile(alias);
-
-        if (!File.Exists(file))
-        {
-            return null;
-        }
-
-        var json = File.ReadAllText(file);
-        return JsonSerializer.Deserialize<EcoFlowDevice>(json);
-    }
-
-    public IEnumerable<string> ListAliases()
-    {
-        return Directory
-            .EnumerateFiles(this.devicesFolder, "*.json")
-            .Select(Path.GetFileNameWithoutExtension);
-    }
-
     public async Task InitAsync(string accountName, string accessKey, string secretKey)
     {
         var accountDirectory = this.GetAccountDirectory(accountName);
@@ -99,23 +61,23 @@ public class AccountManager : IAccountManager
     {
         var accountDirectory = this.GetAccountDirectory(accountName);
         var accountInfoFile = Path.Combine(accountDirectory, "info.json");
-        if (File.Exists(accountInfoFile))
+        if (!File.Exists(accountInfoFile))
         {
-            var json = await File.ReadAllTextAsync(accountInfoFile);
-            AccountInfo? accountInfo = null;
-            try
-            {
-                accountInfo = JsonSerializer.Deserialize<AccountInfo>(json);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogDebug(ex, "Error deserializing account info.");
-            }
-
-            return accountInfo;
+            return null;
         }
 
-        return null;
+        var json = await File.ReadAllTextAsync(accountInfoFile);
+        AccountInfo? accountInfo = null;
+        try
+        {
+            accountInfo = JsonSerializer.Deserialize<AccountInfo>(json);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogDebug(ex, "Error deserializing account info.");
+        }
+
+        return accountInfo;
     }
 
     public string GetAccountDirectory(string accountName)
