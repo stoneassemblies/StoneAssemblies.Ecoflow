@@ -79,6 +79,10 @@ If the device name contains spaces, use quotes:
 
 > gwen battery info --deviceName "EcoFlow Delta 2 Max" --account alexfdezsauco
 
+To include per-cell voltage data, add the --cells switch:
+
+> gwen battery info --deviceName "EcoFlow Delta 2 Max" --cells --account alexfdezsauco 
+
 _NOTE: Extra Batteries_
 If your unit has extra batteries connected, they will be displayed automatically.
 

@@ -206,7 +206,7 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                             var summary =
                                 $"Min: {this.FormatVoltage(min)}   " +
                                 $"Max: {this.FormatVoltage(max)}   " +
-                                $"Δ: {this.FormatDelta(delta)}";
+                                $"Delta: {this.FormatDelta(delta)}";
 
                             this.ansiConsole.MarkupLine(summary);
                         }
