@@ -172,13 +172,7 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                                 .Select(x => x.GetInt32())
                                 .ToArray();
 
-                            if (cells.Length == 0)
-                            {
-                            }
-                            else
-                            {
-                                this.PrintCellsVoltageTable(cells);
-                            }
+                            this.PrintCellsVoltageTable(cells);
                         }
                     }
                 }
