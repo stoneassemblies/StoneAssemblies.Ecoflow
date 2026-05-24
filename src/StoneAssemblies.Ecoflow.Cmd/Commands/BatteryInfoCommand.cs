@@ -51,9 +51,14 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
         this.deviceManager = deviceManager;
     }
 
-    private string FormatVoltage(int mv)
+    private string FormatVoltage(int mv, string? deltaColor = null)
     {
         var voltage = mv / 1000.0d;
+
+        if (!string.IsNullOrWhiteSpace(deltaColor))
+        {
+            return $"{deltaColor}{voltage:F3} V[/]";
+        }
 
         return voltage switch
         {
@@ -65,14 +70,19 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
 
     private string FormatDelta(int deltaMv)
     {
-        var delta = deltaMv / 1000.0d;
+        var markupColor = this.GetMarkupDeltaColor(deltaMv);
+        return $"{markupColor}{deltaMv / 1000.0d:F3} V[/]";
+    }
 
+    private string GetMarkupDeltaColor(int deltaMv)
+    {
+        var delta = deltaMv / 1000.0d;
         return delta switch
         {
-            < 0.010 => $"[green]{delta:F3} V[/]",      
-            < 0.020 => $"[yellow]{delta:F3} V[/]",     
-            < 0.030 => $"[orange3]{delta:F3} V[/]",
-            _ => $"[red]{delta:F3} V[/]",        
+            < 0.010 => "[green]",
+            < 0.020 => "[yellow]",
+            < 0.030 => "[orange3]",
+            _ => "[red]",
         };
     }
 
@@ -110,37 +120,13 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                     .AddRow("Temp (max)", $"{tempMax} °C");
 
                 this.ansiConsole.Write(table);
-
-                if (settings.ShowCells)
+                if (settings.ShowCells && data.TryGetProperty("bms_bmsStatus.cellVol", out var cellVolData))
                 {
-                    var cells = data.GetProperty("bms_bmsStatus.cellVol")
-                        .EnumerateArray()
+                    var cells = cellVolData.EnumerateArray()
                         .Select(x => x.GetInt32())
                         .ToArray();
 
-                    var cellTable = new Table()
-                        .Title("Cell Voltages")
-                        .Border(TableBorder.Rounded)
-                        .AddColumn("Cell")
-                        .AddColumn("Voltage");
-
-                    for (int i = 0; i < cells.Length; i++)
-                    {
-                        cellTable.AddRow($"#{i + 1}", this.FormatVoltage(cells[i]));
-                    }
-
-                    this.ansiConsole.Write(cellTable);
-
-                    var min = cells.Min();
-                    var max = cells.Max();
-                    var delta = max - min;
-
-                    var summary =
-                        $"Min: {this.FormatVoltage(min)}   " +
-                        $"Max: {this.FormatVoltage(max)}   " +
-                        $"Delta: {this.FormatDelta(delta)}";
-
-                    this.ansiConsole.MarkupLine(summary);
+                    this.PrintCellsVoltageTable(cells);
                 }
 
                 string[] slaveKeys = ["bms_slave", "bms_slave1", "bms_slave2"];
@@ -179,36 +165,20 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
 
                         this.ansiConsole.Write(slaveTable);
 
-                        if (settings.ShowCells)
+                        if (settings.ShowCells && data.TryGetProperty($"{key}.cellVol", out var cellSlaveVolData))
                         {
-                            var cells = data.GetProperty($"{key}.cellVol")
+                            var cells = cellSlaveVolData
                                 .EnumerateArray()
                                 .Select(x => x.GetInt32())
                                 .ToArray();
 
-                            var cellTable = new Table()
-                                .Border(TableBorder.Rounded)
-                                .Title($"Cell Voltages — {slaveSn}")
-                                .AddColumn("Cell")
-                                .AddColumn("Voltage");
-
-                            for (int i = 0; i < cells.Length; i++)
+                            if (cells.Length == 0)
                             {
-                                cellTable.AddRow($"#{i + 1}", this.FormatVoltage(cells[i]));
                             }
-
-                            this.ansiConsole.Write(cellTable);
-
-                            var min = cells.Min();
-                            var max = cells.Max();
-                            var delta = max - min;
-
-                            var summary =
-                                $"Min: {this.FormatVoltage(min)}   " +
-                                $"Max: {this.FormatVoltage(max)}   " +
-                                $"Delta: {this.FormatDelta(delta)}";
-
-                            this.ansiConsole.MarkupLine(summary);
+                            else
+                            {
+                                this.PrintCellsVoltageTable(cells);
+                            }
                         }
                     }
                 }
@@ -227,5 +197,61 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
         }
 
         return 0;
+    }
+
+    private void PrintCellsVoltageTable(int[] cells)
+    {
+        if (cells.Length == 0)
+        {
+            this.ansiConsole.MarkupLine(
+                "[yellow] \u26a0\ufe0f Cell voltage data is currently unavailable.[/]\n" +
+                "[yellow] This can happen when AC power is active or when the BMS is busy.[/]\n" +
+                "[yellow] Try turning off AC input/output to allow the BMS to report per-cell voltages.[/]");
+            return;
+        }
+
+        var min = cells.Min();
+        var max = cells.Max();
+        var delta = max - min;
+
+        var deltaColor = this.GetMarkupDeltaColor(delta);
+        var minIndexes = cells
+            .Select((v, i) => new { v, i })
+            .Where(x => x.v == min)
+            .Select(x => x.i)
+            .ToHashSet();
+
+        var maxIndexes = cells
+            .Select((v, i) => new { v, i })
+            .Where(x => x.v == max)
+            .Select(x => x.i)
+            .ToHashSet();
+
+        var cellTable = new Table()
+            .Title("Cell Voltages")
+            .Border(TableBorder.Rounded)
+            .AddColumn("Cell")
+            .AddColumn("Voltage");
+
+        for (var i = 0; i < cells.Length; i++)
+        {
+            if (maxIndexes.Contains(i) || minIndexes.Contains(i))
+            {
+                cellTable.AddRow($"#{i + 1}", this.FormatVoltage(cells[i], deltaColor));
+            }
+            else
+            {
+                cellTable.AddRow($"#{i + 1}", this.FormatVoltage(cells[i]));
+            }
+        }
+
+        this.ansiConsole.Write(cellTable);
+
+        var summary =
+            $"Min: {this.FormatVoltage(min)}   " +
+            $"Max: {this.FormatVoltage(max)}   " +
+            $"Delta: {this.FormatDelta(delta)}";
+
+        this.ansiConsole.MarkupLine(summary);
     }
 }
