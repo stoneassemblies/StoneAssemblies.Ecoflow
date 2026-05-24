@@ -53,26 +53,26 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
 
     private string FormatVoltage(int mv)
     {
-        var v = mv / 1000.0;
+        var voltage = mv / 1000.0d;
 
-        return v switch
+        return voltage switch
         {
-            < 3.20 => $"[red]{v:F3} V[/]",
-            < 3.25 => $"[yellow]{v:F3} V[/]",
-            _ => $"[green]{v:F3} V[/]",
+            < 3.20 => $"[red]{voltage:F3} V[/]",
+            < 3.25 => $"[yellow]{voltage:F3} V[/]",
+            _ => $"[green]{voltage:F3} V[/]",
         };
     }
 
-    private string FormatDelta(double delta)
+    private string FormatDelta(int deltaMv)
     {
-        var d = delta / 1000.0;
+        var delta = deltaMv / 1000.0d;
 
-        return d switch
+        return delta switch
         {
-            < 0.010 => $"[green]{d:F3} V[/]",
-            < 0.020 => $"[yellow]{d:F3} V[/]",
-            < 0.030 => $"[orange1]{d:F3} V[/]",
-            _ => $"[red]{d:F3} V[/]",
+            < 0.010 => $"[green]{delta:F3} V[/]",      
+            < 0.020 => $"[yellow]{delta:F3} V[/]",     
+            < 0.030 => $"[orange3]{delta:F3} V[/]",
+            _ => $"[red]{delta:F3} V[/]",        
         };
     }
 
@@ -138,7 +138,7 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                     var summary =
                         $"Min: {this.FormatVoltage(min)}   " +
                         $"Max: {this.FormatVoltage(max)}   " +
-                        $"Δ: {this.FormatDelta(delta)}";
+                        $"Delta: {this.FormatDelta(delta)}";
 
                     this.ansiConsole.MarkupLine(summary);
                 }
