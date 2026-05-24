@@ -28,6 +28,10 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
         [Description("Optional EcoFlow account name")]
         public string? Account { get; init; }
 
+        [CommandOption("-c|--cells")]
+        [Description("Show per‑cell voltage details")]
+        public bool ShowCells { get; set; }
+
         public override ValidationResult Validate()
         {
             if (string.IsNullOrWhiteSpace(this.DeviceName))
@@ -46,6 +50,31 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
 
         this.ansiConsole = ansiConsole;
         this.deviceManager = deviceManager;
+    }
+
+    private string FormatVoltage(int mv)
+    {
+        var v = mv / 1000.0;
+
+        return v switch
+        {
+            < 3.20 => $"[red]{v:F3} V[/]",
+            < 3.25 => $"[yellow]{v:F3} V[/]",
+            _ => $"[green]{v:F3} V[/]",
+        };
+    }
+
+    private string FormatDelta(double delta)
+    {
+        var d = delta / 1000.0;
+
+        return d switch
+        {
+            < 0.010 => $"[green]{d:F3} V[/]",
+            < 0.020 => $"[yellow]{d:F3} V[/]",
+            < 0.030 => $"[orange1]{d:F3} V[/]",
+            _ => $"[red]{d:F3} V[/]",
+        };
     }
 
     protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
@@ -68,9 +97,11 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                 var tempMax = data.GetProperty("bms_bmsStatus.maxCellTemp").GetInt32();
 
                 var table = new Table().Border(TableBorder.Rounded)
+                    .Title("Main Unit")
                     .AddColumn("Metric")
                     .AddColumn("Value")
-                    .AddRow("Unit Type", "Main Unit")
+
+                    // .AddRow("Unit Type", "Main Unit")
                     .AddRow("SoC", $"{soc}%")
                     .AddRow("SoH", $"{soh}%")
                     .AddRow("Cycles", $"{cycles}")
@@ -80,6 +111,38 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                     .AddRow("Temp (max)", $"{tempMax} °C");
 
                 this.ansiConsole.Write(table);
+
+                if (settings.ShowCells)
+                {
+                    var cells = data.GetProperty("bms_bmsStatus.cellVol")
+                        .EnumerateArray()
+                        .Select(x => x.GetInt32())
+                        .ToArray();
+
+                    var cellTable = new Table()
+                        .Title("Cell Voltages")
+                        .Border(TableBorder.Rounded)
+                        .AddColumn("Cell")
+                        .AddColumn("Voltage");
+
+                    for (int i = 0; i < cells.Length; i++)
+                    {
+                        cellTable.AddRow($"#{i + 1}", this.FormatVoltage(cells[i]));
+                    }
+
+                    this.ansiConsole.Write(cellTable);
+
+                    var min = cells.Min();
+                    var max = cells.Max();
+                    var delta = max - min;
+
+                    var summary =
+                        $"Min: {this.FormatVoltage(min)}   " +
+                        $"Max: {this.FormatVoltage(max)}   " +
+                        $"Δ: {this.FormatDelta(delta)}";
+
+                    this.ansiConsole.MarkupLine(summary);
+                }
 
                 string[] slaveKeys = ["bms_slave", "bms_slave1", "bms_slave2"];
 
@@ -100,10 +163,12 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                         var slaveTempMax = data.GetProperty($"{key}.maxCellTemp").GetInt32();
 
                         var slaveTable = new Table()
+                            .Title($"Extra Battery #{count} — {slaveSn}")
                             .Border(TableBorder.Rounded)
                             .AddColumn("Metric")
                             .AddColumn("Value")
-                            .AddRow("Unit Type", $"Extra Battery #{count++}")
+
+                            // .AddRow("Unit Type", $"Extra Battery #{count++}")
                             .AddRow("Serial number", slaveSn ?? "N/A")
                             .AddRow("SoC", $"{slaveSoc}%")
                             .AddRow("SoH", $"{slaveSoh}%")
@@ -114,6 +179,38 @@ public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
                             .AddRow("Temp (max)", $"{slaveTempMax} °C");
 
                         this.ansiConsole.Write(slaveTable);
+
+                        if (settings.ShowCells)
+                        {
+                            var cells = data.GetProperty($"{key}.cellVol")
+                                .EnumerateArray()
+                                .Select(x => x.GetInt32())
+                                .ToArray();
+
+                            var cellTable = new Table()
+                                .Border(TableBorder.Rounded)
+                                .Title($"Cell Voltages — {slaveSn}")
+                                .AddColumn("Cell")
+                                .AddColumn("Voltage");
+
+                            for (int i = 0; i < cells.Length; i++)
+                            {
+                                cellTable.AddRow($"#{i + 1}", this.FormatVoltage(cells[i]));
+                            }
+
+                            this.ansiConsole.Write(cellTable);
+
+                            var min = cells.Min();
+                            var max = cells.Max();
+                            var delta = max - min;
+
+                            var summary =
+                                $"Min: {this.FormatVoltage(min)}   " +
+                                $"Max: {this.FormatVoltage(max)}   " +
+                                $"Δ: {this.FormatDelta(delta)}";
+
+                            this.ansiConsole.MarkupLine(summary);
+                        }
                     }
                 }
 
