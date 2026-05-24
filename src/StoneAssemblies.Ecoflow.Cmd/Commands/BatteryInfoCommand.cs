@@ -10,7 +10,6 @@ using System.Text.Json;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-using StoneAssemblies.Ecoflow.Cmd.Services;
 using StoneAssemblies.Ecoflow.Cmd.Services.Interfaces;
 
 public class BatteryInfoCommand : AsyncCommand<BatteryInfoCommand.Settings>
